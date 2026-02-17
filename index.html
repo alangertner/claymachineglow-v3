@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>PRESENCE — Clay Machine Glow</title>
+<meta name="description" content="An interactive meditation on attention. Find the ceramic machine hidden in 10 Toronto scenes.">
+<meta name="theme-color" content="#000000">
+<meta property="og:title" content="PRESENCE — Clay Machine Glow">
+<meta property="og:description" content="The act of looking transforms what is seen.">
+<meta property="og:image" content="https://alangertner.github.io/claymachineglow-v3/og-image.png">
+<meta name="twitter:image" content="https://alangertner.github.io/claymachineglow-v3/og-image.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2M5YTIyNyIgc3Ryb2tlLXdpZHRoPSIyIi8+PGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMyIgZmlsbD0iI2M5YTIyNyIvPjwvc3ZnPg==">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --black:#000;
+  --deep:#0a0a0a;
+  --white:#f5f5f5;
+  --gold:#c9a227;
+  --gold-bright:#d4af37;
+  --gold-dim:rgba(201,162,39,0.4);
+  --grey:#666;
+  --grey-light:#999;
+  --transition-fast:0.2s ease-out;
+  --transition-medium:0.4s ease-out;
+  --transition-slow:0.8s ease-out;
+  --font-display:'Helvetica Neue',Helvetica,Arial,sans-serif;
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}
+}
+html,body{
+  width:100%;height:100%;
+  overflow:hidden;
+  background:var(--black);
+  font-family:var(--font-display);
+  color:var(--white);
+  -webkit-font-smoothing:antialiased;
+  touch-action:none;
+  user-select:none;
+  cursor:none;
+}
+
+/* ===== ENTRY SCREEN ===== */
+#entry{
+  position:fixed;inset:0;z-index:1000;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  background:var(--black);
+  opacity:1;
+  transition:opacity 1.5s ease-out;
+}
+#entry.hidden{opacity:0;pointer-events:none}
+#entry .entry-inner{
+  text-align:center;
+  opacity:0;
+  transform:translateY(30px);
+  animation:entryFadeUp 1.2s ease-out 0.5s forwards;
+}
+@keyframes entryFadeUp{
+  to{opacity:1;transform:translateY(0)}
+}
+#entry h1{
+  font-size:clamp(11px,3vw,14px);
+  font-weight:300;
+  letter-spacing:0.5em;
+  text-transform:uppercase;
+  color:var(--grey);
+  margin-bottom:100px;
+}
+#entry .thesis{
+  font-size:clamp(16px,4vw,24px);
+  font-weight:200;
+  letter-spacing:0.05em;
+  color:var(--white);
+  max-width:400px;
+  line-height:1.6;
+  margin:0 auto 80px;
+  opacity:0;
+  animation:entryFadeUp 1.2s ease-out 1s forwards;
+}
+#entry .enter-prompt{
+  font-size:11px;
+  letter-spacing:0.4em;
+  text-transform:uppercase;
+  color:var(--gold);
+  opacity:0;
+  animation:entryFadeUp 1s ease-out 1.5s forwards;
+  cursor:pointer;
+  padding:16px 32px;
+  border:1px solid var(--gold-dim);
+  transition:border-color var(--transition-fast),background var(--transition-fast);
+}
+#entry .enter-prompt:hover{
+  border-color:var(--gold);
+  background:rgba(201,162,39,0.05);
+}
+
+/* ===== CUSTOM CURSOR ===== */
+#cursor{
+  position:fixed;
+  width:100px;height:100px;
+  border:1px solid rgba(255,255,255,0.15);
+  border-radius:50%;
+  pointer-events:none;
+  z-index:900;
+  transform:translate(-50%,-50%);
+  transition:width 0.2s ease-out,height 0.2s ease-out,border-color 0.3s ease-out,opacity 0.4s ease-out;
+  opacity:0;
+}
+#cursor.active{width:80px;height:80px;border-color:var(--gold-dim)}
+#cursor.visible{opacity:1}
+#cursor-dot{
+  position:fixed;
+  width:6px;height:6px;
+  background:var(--gold);
+  border-radius:50%;
+  pointer-events:none;
+  z-index:901;
+  transform:translate(-50%,-50%);
+  opacity:0;
+  transition:opacity 0.4s ease-out,transform 0.15s ease-out;
+}
+#cursor-dot.visible{opacity:1}
+#cursor-dot.active{transform:translate(-50%,-50%) scale(0.7)}
+
+/* ===== SCENE CONTAINER ===== */
+#scene-container{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--black);
+}
+
+/* ===== LETTERBOX ===== */
+.letterbox{
+  position:fixed;
+  background:var(--black);
+  z-index:100;
+  transition:height var(--transition-slow);
+}
+.letterbox-top{top:0;left:0;right:0;height:70px}
+.letterbox-bottom{bottom:0;left:0;right:0;height:70px}
+@media(max-width:768px){
+  .letterbox-top,.letterbox-bottom{height:50px}
+}
+
+/* ===== SCENE IMAGE WRAPPER ===== */
+#scene-wrapper{
+  position:relative;
+  width:100%;
+  height:calc(100% - 140px);
+  overflow:hidden;
+  margin:70px 0;
+}
+@media(max-width:768px){
+  #scene-wrapper{height:calc(100% - 100px);margin:50px 0}
+}
+
+/* ===== SCENE IMAGE ===== */
+#scene-img{
+  position:absolute;
+  transform-origin:0 0;
+  will-change:transform,filter;
+  filter:saturate(0.08) brightness(0.85) contrast(1.05);
+  transition:filter 1s ease-out,opacity 1s ease-out;
+  pointer-events:none;
+}
+#scene-img.found{filter:saturate(1) brightness(1) contrast(1)}
+#scene-img.fading{opacity:0}
+
+/* ===== MACHINE COLOR REVEAL ===== */
+#machine-color{
+  position:absolute;
+  transform-origin:0 0;
+  will-change:transform,opacity;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity 0.3s ease-out;
+  mask-image:radial-gradient(circle 90px, rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0) 100%);
+  -webkit-mask-image:radial-gradient(circle 90px, rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0) 100%);
+  mask-size:100% 100%;
+  -webkit-mask-size:100% 100%;
+}
+
+/* ===== ATTENTION GLOW (SVG filter approach) ===== */
+#attention-glow{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:60;
+  background:radial-gradient(circle 150px at var(--ax,50%) var(--ay,50%),transparent 0%,rgba(0,0,0,0.7) 100%);
+  mix-blend-mode:saturation;
+  opacity:0;
+  transition:opacity 0.8s ease-out;
+}
+#attention-glow.active{opacity:1}
+
+/* ===== SCENE NUMBER ===== */
+#scene-number{
+  position:fixed;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  font-size:clamp(250px,50vw,500px);
+  font-weight:100;
+  color:rgba(255,255,255,0.015);
+  z-index:5;
+  pointer-events:none;
+  line-height:0.8;
+  font-variant-numeric:oldstyle-nums;
+  transition:opacity var(--transition-slow);
+}
+
+/* ===== SCENE INFO ===== */
+#scene-info{
+  position:fixed;
+  bottom:25px;left:0;right:0;
+  z-index:200;
+  text-align:center;
+  opacity:0;
+  transform:translateY(15px);
+  transition:all var(--transition-medium);
+}
+#scene-info.visible{opacity:1;transform:translateY(0)}
+#scene-info .location{
+  font-size:10px;
+  font-weight:400;
+  letter-spacing:0.4em;
+  text-transform:uppercase;
+  color:var(--grey-light);
+}
+#scene-info .progress{
+  margin-top:12px;
+  display:flex;
+  justify-content:center;
+  gap:10px;
+}
+#scene-info .progress-dot{
+  width:5px;height:5px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.12);
+  transition:all var(--transition-fast);
+}
+#scene-info .progress-dot.found{background:var(--gold)}
+#scene-info .progress-dot.current{
+  background:var(--white);
+  box-shadow:0 0 8px rgba(255,255,255,0.3);
+}
+
+/* ===== FOUND EFFECT ===== */
+#found-overlay{
+  position:fixed;inset:0;z-index:300;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity 0.6s ease-out;
+}
+#found-overlay.active{opacity:1}
+#found-overlay::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle 300px at var(--fx,50%) var(--fy,50%),rgba(201,162,39,0.2) 0%,transparent 70%);
+}
+#found-overlay::after{
+  content:'';
+  position:absolute;
+  left:var(--fx,50%);top:var(--fy,50%);
+  width:8px;height:8px;
+  background:var(--gold-bright);
+  border-radius:50%;
+  transform:translate(-50%,-50%);
+  box-shadow:0 0 30px 10px var(--gold),0 0 60px 20px rgba(201,162,39,0.3);
+  animation:foundPulse 2s ease-out forwards;
+}
+@keyframes foundPulse{
+  0%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(3)}
+}
+
+/* ===== COMMITMENT RIPPLE ===== */
+.commit-ripple{
+  position:fixed;
+  border:1px solid;
+  border-radius:50%;
+  pointer-events:none;
+  z-index:250;
+  transform:translate(-50%,-50%) scale(0);
+  animation:rippleOut 0.6s ease-out forwards;
+}
+.commit-ripple.miss{border-color:rgba(255,255,255,0.15)}
+.commit-ripple.found{border-color:var(--gold)}
+@keyframes rippleOut{
+  0%{transform:translate(-50%,-50%) scale(0);opacity:1}
+  100%{transform:translate(-50%,-50%) scale(2.5);opacity:0}
+}
+
+/* ===== LOCATION REVEAL ===== */
+#location-reveal{
+  position:fixed;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  z-index:350;
+  text-align:center;
+  opacity:0;
+  pointer-events:none;
+}
+#location-reveal.visible{
+  opacity:1;
+  animation:locationReveal 2.5s ease-out forwards;
+}
+@keyframes locationReveal{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(0.9)}
+  15%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  85%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1.02)}
+}
+#location-reveal .name{
+  font-size:clamp(24px,6vw,42px);
+  font-weight:200;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  color:var(--white);
+  text-shadow:0 0 40px rgba(201,162,39,0.4);
+}
+#location-reveal .check{
+  display:block;
+  margin-top:16px;
+  font-size:18px;
+  color:var(--gold);
+  opacity:0;
+  animation:checkIn 0.4s ease-out 0.3s forwards;
+}
+@keyframes checkIn{
+  0%{opacity:0;transform:scale(0)}
+  100%{opacity:1;transform:scale(1)}
+}
+
+/* ===== END SCREEN ===== */
+#end{
+  position:fixed;inset:0;z-index:1000;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  background:var(--black);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 1.5s ease-out;
+  padding:40px;
+}
+#end.visible{opacity:1;pointer-events:auto}
+#end h2{
+  font-size:10px;
+  font-weight:400;
+  letter-spacing:0.5em;
+  text-transform:uppercase;
+  color:var(--grey);
+  margin-bottom:60px;
+  opacity:0;
+  animation:endFadeIn 1s ease-out 0.5s forwards;
+}
+@keyframes endFadeIn{
+  to{opacity:1}
+}
+#end .constellation{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:16px;
+  margin-bottom:80px;
+}
+@media(max-width:500px){
+  #end .constellation{gap:10px}
+}
+#end .memory{
+  width:clamp(50px,12vw,80px);
+  height:clamp(50px,12vw,80px);
+  position:relative;
+  opacity:0;
+  transform:scale(0.8);
+  transition:all 0.8s ease-out;
+}
+#end .memory.revealed{opacity:1;transform:scale(1)}
+#end .memory img{
+  width:100%;height:100%;
+  object-fit:cover;
+  filter:saturate(0.2) brightness(0.6);
+  border-radius:2px;
+}
+#end .memory::after{
+  content:'';
+  position:absolute;
+  width:6px;height:6px;
+  background:var(--gold);
+  border-radius:50%;
+  top:var(--y);left:var(--x);
+  transform:translate(-50%,-50%);
+  box-shadow:0 0 12px var(--gold),0 0 24px rgba(201,162,39,0.4);
+}
+#end .final-line{
+  font-size:12px;
+  font-weight:300;
+  letter-spacing:0.1em;
+  color:var(--grey-light);
+  margin-bottom:40px;
+  opacity:0;
+  transition:opacity 1s ease-out;
+}
+#end .final-line.visible{opacity:1}
+#end .restart{
+  font-size:10px;
+  font-weight:400;
+  letter-spacing:0.4em;
+  text-transform:uppercase;
+  color:var(--gold);
+  background:none;
+  border:1px solid var(--gold-dim);
+  padding:14px 28px;
+  cursor:pointer;
+  opacity:0;
+  transition:opacity 0.8s ease-out,border-color var(--transition-fast),background var(--transition-fast);
+}
+#end .restart:hover{border-color:var(--gold);background:rgba(201,162,39,0.05)}
+#end .restart.visible{opacity:1}
+
+/* ===== AUDIO TOGGLE ===== */
+#audio-toggle{
+  position:fixed;
+  bottom:25px;right:25px;
+  z-index:500;
+  width:36px;height:36px;
+  background:none;
+  border:1px solid rgba(255,255,255,0.15);
+  border-radius:50%;
+  color:var(--grey);
+  font-size:12px;
+  cursor:pointer;
+  opacity:0;
+  transition:opacity var(--transition-fast),border-color var(--transition-fast),color var(--transition-fast);
+}
+#audio-toggle:hover{border-color:rgba(255,255,255,0.4);color:var(--white)}
+#audio-toggle.visible{opacity:1}
+#audio-toggle.muted{color:rgba(255,255,255,0.2)}
+
+/* ===== BREATH ANIMATION ===== */
+@keyframes breath{
+  0%,100%{opacity:1}
+  50%{opacity:0.85}
+}
+.breathing{animation:breath 4s ease-in-out infinite}
+</style>
+</head>
+<body>
+
+<!-- Entry -->
+<div id="entry">
+  <div class="entry-inner">
+    <h1>Clay Machine Glow</h1>
+    <p class="thesis">The act of looking<br>transforms what is seen</p>
+    <div class="enter-prompt" role="button" tabindex="0">Begin</div>
+  </div>
+</div>
+
+<!-- Cursor -->
+<div id="cursor"></div>
+<div id="cursor-dot"></div>
+
+<!-- Letterbox -->
+<div class="letterbox letterbox-top"></div>
+<div class="letterbox letterbox-bottom"></div>
+
+<!-- Scene container -->
+<div id="scene-container">
+  <div id="scene-number">1</div>
+  <div id="scene-wrapper">
+    <img id="scene-img" alt="">
+    <img id="machine-color" alt="">
+  </div>
+</div>
+
+<!-- Attention glow -->
+<div id="attention-glow"></div>
+
+<!-- Scene info -->
+<div id="scene-info">
+  <div class="location"></div>
+  <div class="progress"></div>
+</div>
+
+<!-- Found overlay -->
+<div id="found-overlay"></div>
+
+<!-- Location reveal -->
+<div id="location-reveal">
+  <div class="name"></div>
+  <span class="check">✓</span>
+</div>
+
+<!-- End screen -->
+<div id="end">
+  <h2>All Found</h2>
+  <div class="constellation"></div>
+  <div class="final-line">A real machine is hidden somewhere in Toronto</div>
+  <button class="restart">Begin Again</button>
+</div>
+
+<!-- Audio toggle -->
+<button id="audio-toggle" title="Toggle sound">○</button>
+
+<script>
+// ===== SCENE DATA =====
+const SCENES = [
+  { img: 'scenes/scene1.jpg', name: 'Kensington Market', x: 0.15, y: 0.52 },
+  { img: 'scenes/scene2.jpg', name: 'Nathan Phillips Square', x: 0.63, y: 0.65 },
+  { img: 'scenes/scene3.jpg', name: 'Dundas Square', x: 0.27, y: 0.68 },
+  { img: 'scenes/scene4.jpg', name: 'St. Lawrence Market', x: 0.48, y: 0.75 },
+  { img: 'scenes/scene5.jpg', name: 'High Park', x: 0.35, y: 0.55 },
+  { img: 'scenes/scene6.jpg', name: 'Toronto Islands', x: 0.58, y: 0.72 },
+  { img: 'scenes/scene7.jpg', name: 'Chinatown Spadina', x: 0.48, y: 0.68 },
+  { img: 'scenes/scene8.jpg', name: 'PATH Underground', x: 0.35, y: 0.55 },
+  { img: 'scenes/scene9.jpg', name: 'Distillery District', x: 0.52, y: 0.68 },
+  { img: 'scenes/scene10.jpg', name: 'Gardiner Museum', x: 0.42, y: 0.55 },
+];
+
+const HIT_RADIUS = 180;
+
+// ===== STATE =====
+let currentScene = 0;
+let foundScenes = [];
+let gameActive = false;
+let transitioning = false;
+
+// Image state
+let imgWidth = 0, imgHeight = 0;
+let panX = 0, panY = 0, scale = 1, minScale = 1;
+
+// Interaction state
+let dragging = false;
+let dragStartX = 0, dragStartY = 0;
+let panStartX = 0, panStartY = 0;
+let clickIntent = true;
+let lastPinchDist = 0;
+
+// Momentum
+let velocityX = 0, velocityY = 0;
+let lastDragX = 0, lastDragY = 0;
+let lastDragTime = 0;
+let momentumRAF = null;
+
+// Cursor tracking
+let mouseX = window.innerWidth / 2;
+let mouseY = window.innerHeight / 2;
+
+// Preload cache
+const preloadCache = {};
+
+// DOM
+let imgEl, machineColor, sceneWrapper, cursor, cursorDot, sceneNumber, sceneInfo, foundOverlay, attentionGlow, locationReveal;
+let machineRevealTimer = null;
+let machineRevealStart = 0;
+
+// ===== AUDIO =====
+let audioCtx = null;
+let isMuted = true;
+let droneOsc = null;
+let droneGain = null;
+let droneFilter = null;
+
+function initAudio() {
+  if (audioCtx) return;
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  } catch(e) {
+    console.warn('Audio not available');
+  }
+}
+
+function startDrone() {
+  if (!audioCtx || isMuted || droneOsc) return;
+  
+  droneOsc = audioCtx.createOscillator();
+  const osc2 = audioCtx.createOscillator();
+  droneGain = audioCtx.createGain();
+  droneFilter = audioCtx.createBiquadFilter();
+  
+  droneOsc.type = 'sine';
+  droneOsc.frequency.value = 55;
+  osc2.type = 'sine';
+  osc2.frequency.value = 55.5; // Slight detune for warmth
+  
+  droneFilter.type = 'lowpass';
+  droneFilter.frequency.value = 180;
+  droneFilter.Q.value = 1;
+  
+  droneGain.gain.value = 0;
+  droneGain.gain.linearRampToValueAtTime(0.025, audioCtx.currentTime + 3);
+  
+  droneOsc.connect(droneFilter);
+  osc2.connect(droneFilter);
+  droneFilter.connect(droneGain);
+  droneGain.connect(audioCtx.destination);
+  droneOsc.start();
+  osc2.start();
+}
+
+function stopDrone() {
+  if (droneGain) {
+    droneGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1.5);
+    setTimeout(() => {
+      try { droneOsc?.stop(); } catch(e) {}
+      droneOsc = null;
+      droneGain = null;
+    }, 1600);
+  }
+}
+
+function playFoundTone() {
+  if (!audioCtx || isMuted) return;
+  
+  const now = audioCtx.currentTime;
+  
+  // Primary tone
+  const osc1 = audioCtx.createOscillator();
+  const gain1 = audioCtx.createGain();
+  osc1.type = 'sine';
+  osc1.frequency.setValueAtTime(220, now);
+  osc1.frequency.exponentialRampToValueAtTime(440, now + 0.4);
+  gain1.gain.setValueAtTime(0, now);
+  gain1.gain.linearRampToValueAtTime(0.06, now + 0.15);
+  gain1.gain.linearRampToValueAtTime(0, now + 2);
+  osc1.connect(gain1);
+  gain1.connect(audioCtx.destination);
+  osc1.start(now);
+  osc1.stop(now + 2.1);
+  
+  // Harmonic
+  const osc2 = audioCtx.createOscillator();
+  const gain2 = audioCtx.createGain();
+  osc2.type = 'sine';
+  osc2.frequency.value = 660;
+  gain2.gain.setValueAtTime(0, now);
+  gain2.gain.linearRampToValueAtTime(0.02, now + 0.2);
+  gain2.gain.linearRampToValueAtTime(0, now + 1.5);
+  osc2.connect(gain2);
+  gain2.connect(audioCtx.destination);
+  osc2.start(now + 0.1);
+  osc2.stop(now + 1.6);
+}
+
+function playMissTone() {
+  if (!audioCtx || isMuted) return;
+  
+  const now = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  
+  osc.type = 'sine';
+  osc.frequency.value = 80;
+  gain.gain.setValueAtTime(0.015, now);
+  gain.gain.linearRampToValueAtTime(0, now + 0.25);
+  
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(now);
+  osc.stop(now + 0.3);
+}
+
+function toggleMute() {
+  isMuted = !isMuted;
+  const btn = document.getElementById('audio-toggle');
+  btn.classList.toggle('muted', isMuted);
+  btn.textContent = isMuted ? '○' : '◉';
+  
+  if (isMuted) {
+    stopDrone();
+  } else if (gameActive) {
+    startDrone();
+  }
+}
+
+// ===== PRELOAD =====
+function preloadImage(url) {
+  return new Promise((resolve, reject) => {
+    if (preloadCache[url]) {
+      resolve(preloadCache[url]);
+      return;
+    }
+    const img = new Image();
+    img.onload = () => { preloadCache[url] = img; resolve(img); };
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
+async function preloadAll() {
+  const promises = SCENES.map(s => preloadImage(s.img));
+  await Promise.all(promises);
+}
+
+// ===== TRANSFORM =====
+function updateTransform() {
+  const t = `translate(${panX}px, ${panY}px) scale(${scale})`;
+  imgEl.style.transform = t;
+  machineColor.style.transform = t;
+}
+
+function clampPan() {
+  const w = imgWidth * scale;
+  const h = imgHeight * scale;
+  const cw = sceneWrapper.clientWidth;
+  const ch = sceneWrapper.clientHeight;
+  
+  if (w <= cw) panX = (cw - w) / 2;
+  else panX = Math.min(0, Math.max(cw - w, panX));
+  
+  if (h <= ch) panY = (ch - h) / 2;
+  else panY = Math.min(0, Math.max(ch - h, panY));
+}
+
+function screenToImage(sx, sy) {
+  const rect = sceneWrapper.getBoundingClientRect();
+  return {
+    x: (sx - rect.left - panX) / scale,
+    y: (sy - rect.top - panY) / scale
+  };
+}
+
+// ===== SCENE LOADING =====
+async function loadScene(idx) {
+  currentScene = idx;
+  transitioning = true;
+  
+  const scene = SCENES[idx];
+  
+  // Update scene number
+  sceneNumber.textContent = idx + 1;
+  sceneNumber.style.opacity = '1';
+  
+  // Update info
+  sceneInfo.querySelector('.location').textContent = scene.name;
+  updateProgress();
+  
+  // Load image
+  const img = await preloadImage(scene.img);
+  imgWidth = img.width;
+  imgHeight = img.height;
+  imgEl.src = img.src;
+  imgEl.style.width = imgWidth + 'px';
+  imgEl.style.height = imgHeight + 'px';
+  
+  // Calculate scale
+  const sx = sceneWrapper.clientWidth / imgWidth;
+  const sy = sceneWrapper.clientHeight / imgHeight;
+  minScale = Math.max(sx, sy);
+  scale = minScale;
+  
+  // Center
+  panX = (sceneWrapper.clientWidth - imgWidth * scale) / 2;
+  panY = (sceneWrapper.clientHeight - imgHeight * scale) / 2;
+  
+  updateTransform();
+  
+  // Reset states
+  imgEl.classList.remove('found', 'fading');
+  attentionGlow.classList.add('active');
+  
+  // Setup machine color reveal overlay
+  machineColor.src = img.src;
+  machineColor.style.width = imgWidth + 'px';
+  machineColor.style.height = imgHeight + 'px';
+  machineColor.style.opacity = '0';
+  
+  // Position mask on machine location
+  const mx = scene.x * 100;
+  const my = scene.y * 100;
+  machineColor.style.maskPosition = `${mx}% ${my}%`;
+  machineColor.style.webkitMaskPosition = `${mx}% ${my}%`;
+  // Use mask with fixed position relative to image
+  const maskSize = '180px 180px';
+  machineColor.style.maskSize = maskSize;
+  machineColor.style.webkitMaskSize = maskSize;
+  machineColor.style.maskRepeat = 'no-repeat';
+  machineColor.style.webkitMaskRepeat = 'no-repeat';
+  // Position mask at machine center
+  const maskX = (scene.x * imgWidth) - 90;
+  const maskY = (scene.y * imgHeight) - 90;
+  machineColor.style.maskPosition = `${maskX}px ${maskY}px`;
+  machineColor.style.webkitMaskPosition = `${maskX}px ${maskY}px`;
+  
+  // Start gradual color reveal - earlier scenes faster, later slower
+  if (machineRevealTimer) cancelAnimationFrame(machineRevealTimer);
+  const revealDelay = 2000; // wait 2s before starting
+  const revealDuration = 5000 + (idx * 3000); // scene 0: 5s, scene 9: 35s
+  machineRevealStart = performance.now() + revealDelay;
+  
+  function animateMachineReveal(now) {
+    if (!gameActive || currentScene !== idx || foundScenes.includes(idx)) return;
+    const elapsed = now - machineRevealStart;
+    if (elapsed < 0) {
+      machineRevealTimer = requestAnimationFrame(animateMachineReveal);
+      return;
+    }
+    const progress = Math.min(1, elapsed / revealDuration);
+    // Ease in: slow start, accelerating
+    const eased = progress * progress;
+    machineColor.style.opacity = String(eased * 0.85); // max 85% so it's subtle
+    if (progress < 1) {
+      machineRevealTimer = requestAnimationFrame(animateMachineReveal);
+    }
+  }
+  machineRevealTimer = requestAnimationFrame(animateMachineReveal);
+  
+  // Show info
+  sceneInfo.classList.add('visible');
+  
+  setTimeout(() => {
+    transitioning = false;
+  }, 1000);
+}
+
+function updateProgress() {
+  const progress = sceneInfo.querySelector('.progress');
+  progress.innerHTML = '';
+  
+  for (let i = 0; i < SCENES.length; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'progress-dot';
+    if (foundScenes.includes(i)) dot.classList.add('found');
+    if (i === currentScene) dot.classList.add('current');
+    progress.appendChild(dot);
+  }
+}
+
+// ===== ATTENTION TRACKING =====
+function updateAttention() {
+  if (!gameActive || transitioning) return;
+  attentionGlow.style.setProperty('--ax', mouseX + 'px');
+  attentionGlow.style.setProperty('--ay', mouseY + 'px');
+}
+
+// ===== HIT DETECTION =====
+function getTargetCenter() {
+  const s = SCENES[currentScene];
+  return { x: s.x * imgWidth, y: s.y * imgHeight };
+}
+
+function handleCommit(sx, sy) {
+  if (transitioning || !gameActive) return;
+  
+  const pt = screenToImage(sx, sy);
+  const target = getTargetCenter();
+  const dist = Math.hypot(pt.x - target.x, pt.y - target.y);
+  
+  if (dist <= HIT_RADIUS) {
+    handleFound(sx, sy);
+  } else {
+    handleMiss(sx, sy);
+  }
+}
+
+function handleFound(sx, sy) {
+  foundScenes.push(currentScene);
+  transitioning = true;
+  
+  // Sound
+  playFoundTone();
+  
+  // Visual feedback
+  foundOverlay.style.setProperty('--fx', sx + 'px');
+  foundOverlay.style.setProperty('--fy', sy + 'px');
+  foundOverlay.classList.add('active');
+  
+  // Ripple
+  createRipple(sx, sy, 'found');
+  
+  // Saturate image
+  imgEl.classList.add('found');
+  attentionGlow.classList.remove('active');
+  // Hide color overlay since full image is now saturated
+  if (machineRevealTimer) cancelAnimationFrame(machineRevealTimer);
+  machineColor.style.opacity = '0';
+  
+  // Show location reveal
+  locationReveal.querySelector('.name').textContent = SCENES[currentScene].name;
+  locationReveal.classList.add('visible');
+  
+  setTimeout(() => {
+    foundOverlay.classList.remove('active');
+    locationReveal.classList.remove('visible');
+    
+    if (currentScene < SCENES.length - 1) {
+      // Fade and load next
+      imgEl.classList.add('fading');
+      sceneNumber.style.opacity = '0';
+      
+      setTimeout(() => {
+        loadScene(currentScene + 1);
+      }, 1000);
+    } else {
+      // All found
+      showEnd();
+    }
+  }, 2500);
+}
+
+function handleMiss(sx, sy) {
+  playMissTone();
+  createRipple(sx, sy, 'miss');
+}
+
+function createRipple(x, y, type) {
+  const ripple = document.createElement('div');
+  ripple.className = 'commit-ripple ' + type;
+  ripple.style.left = x + 'px';
+  ripple.style.top = y + 'px';
+  ripple.style.width = '50px';
+  ripple.style.height = '50px';
+  document.body.appendChild(ripple);
+  
+  setTimeout(() => ripple.remove(), 600);
+}
+
+// ===== END SCREEN =====
+function showEnd() {
+  gameActive = false;
+  stopDrone();
+  attentionGlow.classList.remove('active');
+  sceneInfo.classList.remove('visible');
+  
+  const end = document.getElementById('end');
+  const constellation = end.querySelector('.constellation');
+  const finalLine = end.querySelector('.final-line');
+  const restart = end.querySelector('.restart');
+  
+  // Build constellation
+  constellation.innerHTML = '';
+  
+  SCENES.forEach((scene, i) => {
+    const memory = document.createElement('div');
+    memory.className = 'memory';
+    memory.style.setProperty('--x', (scene.x * 100) + '%');
+    memory.style.setProperty('--y', (scene.y * 100) + '%');
+    
+    const img = document.createElement('img');
+    img.src = scene.img;
+    memory.appendChild(img);
+    constellation.appendChild(memory);
+    
+    // Stagger reveal
+    setTimeout(() => {
+      memory.classList.add('revealed');
+    }, i * 250 + 800);
+  });
+  
+  // Show final line
+  setTimeout(() => {
+    finalLine.classList.add('visible');
+  }, SCENES.length * 250 + 1200);
+  
+  // Show restart
+  setTimeout(() => {
+    restart.classList.add('visible');
+  }, SCENES.length * 250 + 1800);
+  
+  end.classList.add('visible');
+}
+
+function restart() {
+  const end = document.getElementById('end');
+  end.classList.remove('visible');
+  end.querySelector('.restart').classList.remove('visible');
+  end.querySelector('.final-line').classList.remove('visible');
+  
+  currentScene = 0;
+  foundScenes = [];
+  
+  setTimeout(() => {
+    gameActive = true;
+    if (!isMuted) startDrone();
+    loadScene(0);
+  }, 800);
+}
+
+// ===== INPUT =====
+function setupInput() {
+  const wrapper = sceneWrapper;
+  
+  // Mouse move
+  window.addEventListener('mousemove', e => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    
+    cursor.style.left = mouseX + 'px';
+    cursor.style.top = mouseY + 'px';
+    cursorDot.style.left = mouseX + 'px';
+    cursorDot.style.top = mouseY + 'px';
+    
+    updateAttention();
+    
+    if (dragging && gameActive) {
+      const dx = e.clientX - dragStartX;
+      const dy = e.clientY - dragStartY;
+      
+      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) clickIntent = false;
+      
+      // Velocity
+      const now = performance.now();
+      const dt = now - lastDragTime;
+      if (dt > 0) {
+        velocityX = (e.clientX - lastDragX) / dt * 16;
+        velocityY = (e.clientY - lastDragY) / dt * 16;
+      }
+      lastDragX = e.clientX;
+      lastDragY = e.clientY;
+      lastDragTime = now;
+      
+      panX = panStartX + dx;
+      panY = panStartY + dy;
+      clampPan();
+      updateTransform();
+    }
+  });
+  
+  // Mouse down
+  wrapper.addEventListener('mousedown', e => {
+    if (!gameActive) return;
+    stopMomentum();
+    
+    dragging = true;
+    clickIntent = true;
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    panStartX = panX;
+    panStartY = panY;
+    lastDragX = e.clientX;
+    lastDragY = e.clientY;
+    lastDragTime = performance.now();
+    
+    cursor.classList.add('active');
+    cursorDot.classList.add('active');
+  });
+  
+  // Mouse up
+  window.addEventListener('mouseup', e => {
+    if (dragging && clickIntent && gameActive) {
+      handleCommit(e.clientX, e.clientY);
+    } else if (!clickIntent) {
+      applyMomentum();
+    }
+    dragging = false;
+    cursor.classList.remove('active');
+    cursorDot.classList.remove('active');
+  });
+  
+  // Wheel zoom
+  wrapper.addEventListener('wheel', e => {
+    if (!gameActive) return;
+    e.preventDefault();
+    
+    const oldScale = scale;
+    const factor = e.deltaY < 0 ? 1.12 : 0.89;
+    scale = Math.max(minScale, Math.min(3.5, scale * factor));
+    
+    const rect = wrapper.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    
+    panX = mx - (mx - panX) * (scale / oldScale);
+    panY = my - (my - panY) * (scale / oldScale);
+    clampPan();
+    updateTransform();
+  }, { passive: false });
+  
+  // Touch
+  let touches = [];
+  
+  wrapper.addEventListener('touchstart', e => {
+    if (!gameActive) return;
+    e.preventDefault();
+    stopMomentum();
+    
+    touches = [...e.touches];
+    
+    if (touches.length === 1) {
+      dragging = true;
+      clickIntent = true;
+      dragStartX = touches[0].clientX;
+      dragStartY = touches[0].clientY;
+      panStartX = panX;
+      panStartY = panY;
+      lastDragX = touches[0].clientX;
+      lastDragY = touches[0].clientY;
+      lastDragTime = performance.now();
+      
+      mouseX = touches[0].clientX;
+      mouseY = touches[0].clientY;
+      updateAttention();
+    }
+    
+    if (touches.length === 2) {
+      lastPinchDist = Math.hypot(
+        touches[1].clientX - touches[0].clientX,
+        touches[1].clientY - touches[0].clientY
+      );
+      clickIntent = false;
+    }
+  }, { passive: false });
+  
+  wrapper.addEventListener('touchmove', e => {
+    if (!gameActive) return;
+    e.preventDefault();
+    
+    const ts = [...e.touches];
+    
+    if (ts.length === 1 && dragging) {
+      const dx = ts[0].clientX - dragStartX;
+      const dy = ts[0].clientY - dragStartY;
+      
+      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) clickIntent = false;
+      
+      const now = performance.now();
+      const dt = now - lastDragTime;
+      if (dt > 0) {
+        velocityX = (ts[0].clientX - lastDragX) / dt * 16;
+        velocityY = (ts[0].clientY - lastDragY) / dt * 16;
+      }
+      lastDragX = ts[0].clientX;
+      lastDragY = ts[0].clientY;
+      lastDragTime = now;
+      
+      mouseX = ts[0].clientX;
+      mouseY = ts[0].clientY;
+      updateAttention();
+      
+      panX = panStartX + dx;
+      panY = panStartY + dy;
+      clampPan();
+      updateTransform();
+    }
+    
+    if (ts.length === 2) {
+      const dist = Math.hypot(
+        ts[1].clientX - ts[0].clientX,
+        ts[1].clientY - ts[0].clientY
+      );
+      
+      const oldScale = scale;
+      scale *= dist / lastPinchDist;
+      scale = Math.max(minScale, Math.min(3.5, scale));
+      
+      const mx = (ts[0].clientX + ts[1].clientX) / 2;
+      const my = (ts[0].clientY + ts[1].clientY) / 2;
+      
+      const rect = wrapper.getBoundingClientRect();
+      panX = (mx - rect.left) - ((mx - rect.left) - panX) * (scale / oldScale);
+      panY = (my - rect.top) - ((my - rect.top) - panY) * (scale / oldScale);
+      clampPan();
+      updateTransform();
+      
+      lastPinchDist = dist;
+    }
+  }, { passive: false });
+  
+  wrapper.addEventListener('touchend', e => {
+    if (dragging && clickIntent && e.changedTouches.length === 1 && gameActive) {
+      handleCommit(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+    } else if (!clickIntent && e.touches.length === 0) {
+      applyMomentum();
+    }
+    dragging = false;
+  });
+  
+  // Audio toggle
+  document.getElementById('audio-toggle').addEventListener('click', toggleMute);
+}
+
+function stopMomentum() {
+  if (momentumRAF) {
+    cancelAnimationFrame(momentumRAF);
+    momentumRAF = null;
+  }
+  velocityX = 0;
+  velocityY = 0;
+}
+
+function applyMomentum() {
+  if (Math.abs(velocityX) < 0.5 && Math.abs(velocityY) < 0.5) {
+    velocityX = 0;
+    velocityY = 0;
+    return;
+  }
+  
+  const friction = 0.92;
+  velocityX *= friction;
+  velocityY *= friction;
+  
+  panX += velocityX;
+  panY += velocityY;
+  clampPan();
+  updateTransform();
+  
+  momentumRAF = requestAnimationFrame(applyMomentum);
+}
+
+// ===== RESIZE =====
+function handleResize() {
+  if (gameActive && imgWidth > 0) {
+    const sx = sceneWrapper.clientWidth / imgWidth;
+    const sy = sceneWrapper.clientHeight / imgHeight;
+    minScale = Math.max(sx, sy);
+    
+    if (scale < minScale) {
+      scale = minScale;
+    }
+    clampPan();
+    updateTransform();
+  }
+}
+
+// ===== INIT =====
+async function init() {
+  imgEl = document.getElementById('scene-img');
+  machineColor = document.getElementById('machine-color');
+  sceneWrapper = document.getElementById('scene-wrapper');
+  cursor = document.getElementById('cursor');
+  cursorDot = document.getElementById('cursor-dot');
+  sceneNumber = document.getElementById('scene-number');
+  sceneInfo = document.getElementById('scene-info');
+  foundOverlay = document.getElementById('found-overlay');
+  attentionGlow = document.getElementById('attention-glow');
+  locationReveal = document.getElementById('location-reveal');
+  
+  setupInput();
+  
+  // Entry screen
+  const entry = document.getElementById('entry');
+  const enterPrompt = entry.querySelector('.enter-prompt');
+  
+  const startGame = async () => {
+    initAudio();
+    
+    entry.classList.add('hidden');
+    cursor.classList.add('visible');
+    cursorDot.classList.add('visible');
+    document.getElementById('audio-toggle').classList.add('visible');
+    
+    await preloadAll();
+    
+    setTimeout(() => {
+      entry.style.display = 'none';
+      gameActive = true;
+      if (!isMuted) startDrone();
+      loadScene(0);
+    }, 1500);
+  };
+  
+  enterPrompt.addEventListener('click', startGame);
+  enterPrompt.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') startGame();
+  });
+  
+  // Restart handler
+  document.querySelector('#end .restart').addEventListener('click', restart);
+  
+  window.addEventListener('resize', handleResize);
+  
+  // Hide cursor on touch devices
+  if ('ontouchstart' in window) {
+    cursor.style.display = 'none';
+    cursorDot.style.display = 'none';
+  }
+}
+
+window.addEventListener('load', init);
+</script>
+</body>
+</html>
