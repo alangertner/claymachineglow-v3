@@ -525,6 +525,7 @@ const SCENES = [
 ];
 
 const HIT_RADIUS = 180;
+const CLICK_THRESHOLD = 'ontouchstart' in window ? 20 : 5;
 
 // ===== STATE =====
 let currentScene = 0;
@@ -1003,7 +1004,7 @@ function setupInput() {
       const dx = e.clientX - dragStartX;
       const dy = e.clientY - dragStartY;
       
-      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) clickIntent = false;
+      if (Math.abs(dx) > CLICK_THRESHOLD || Math.abs(dy) > CLICK_THRESHOLD) clickIntent = false;
       
       // Velocity
       const now = performance.now();
@@ -1118,7 +1119,7 @@ function setupInput() {
       const dx = ts[0].clientX - dragStartX;
       const dy = ts[0].clientY - dragStartY;
       
-      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) clickIntent = false;
+      if (Math.abs(dx) > CLICK_THRESHOLD || Math.abs(dy) > CLICK_THRESHOLD) clickIntent = false;
       
       const now = performance.now();
       const dt = now - lastDragTime;
