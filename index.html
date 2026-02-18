@@ -245,7 +245,7 @@ const hint = document.getElementById('hint');
 dot.addEventListener('animationiteration', () => {
   if (stage === 0) {
     pulseCount++;
-    if (pulseCount >= 5) hint.classList.add('visible');
+    if (pulseCount >= 3) hint.classList.add('visible');
   }
 });
 const dot = document.getElementById('dot');
