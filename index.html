@@ -7,7 +7,7 @@
 <meta name="description" content="Three realities. One machine.">
 <meta name="theme-color" content="#000000">
 <meta property="og:title" content="Clay Machine Glow">
-<meta property="og:description" content="Three realities. One machine.">
+<meta property="og:description" content="A project to get you excited about reality.">
 <meta property="og:image" content="https://alangertner.github.io/claymachineglow-v3/og-image.png">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
@@ -27,123 +27,236 @@ body{
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  cursor:default;
 }
 
-.title{
-  font-size:clamp(10px,2.5vw,13px);
-  font-weight:300;
-  letter-spacing:0.5em;
-  text-transform:uppercase;
-  color:rgba(255,255,255,0.25);
-  margin-bottom:24px;
-  opacity:0;
-  animation:fadeIn 1.2s ease-out 0.3s forwards;
+/* Dot */
+#dot{
+  width:12px;height:12px;
+  background:#c9a227;
+  border-radius:50%;
+  cursor:pointer;
+  z-index:10;
+  transition:width 0.8s cubic-bezier(0.16,1,0.3,1), height 0.8s cubic-bezier(0.16,1,0.3,1), box-shadow 1s ease-out, opacity 0.8s ease-out;
+  box-shadow:0 0 20px rgba(201,162,39,0.3);
+  animation:pulse 2.5s ease-in-out infinite;
+  flex-shrink:0;
+}
+#dot.s1{width:20px;height:20px;box-shadow:0 0 40px rgba(201,162,39,0.4);animation:pulse 2.5s ease-in-out infinite}
+#dot.s2{width:32px;height:32px;box-shadow:0 0 60px rgba(201,162,39,0.5);animation:pulse 2.2s ease-in-out infinite}
+#dot.s3{width:48px;height:48px;box-shadow:0 0 80px rgba(201,162,39,0.5);animation:pulse 2s ease-in-out infinite}
+#dot.s4{opacity:0;width:0;height:0;pointer-events:none;animation:none}
+
+@keyframes pulse{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.25)}
 }
 
-.choices{
+/* Text above dot */
+#text-area{
+  height:80px;
   display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:0;
-}
-
-.choice{
-  display:block;
-  text-decoration:none;
+  align-items:flex-end;
+  justify-content:center;
+  margin-bottom:30px;
   text-align:center;
-  padding:14px 48px;
-  position:relative;
-  opacity:0;
-  transform:translateY(20px);
-  animation:fadeUp 0.8s ease-out var(--d, 0.8s) forwards;
+  padding:0 30px;
 }
+.text-content{
+  opacity:0;
+  transition:opacity 0.8s ease-out;
+  position:absolute;
+}
+.text-content.visible{opacity:1}
 
-.choice .label{
-  font-size:clamp(14px,3.5vw,20px);
+.text-title{
+  font-size:clamp(11px,2.5vw,14px);
   font-weight:300;
-  letter-spacing:0.2em;
+  letter-spacing:0.4em;
   text-transform:uppercase;
   color:rgba(255,255,255,0.5);
-  transition:color 0.4s ease-out, letter-spacing 0.4s ease-out;
+}
+.text-line{
+  font-size:clamp(15px,3.2vw,20px);
+  font-weight:200;
+  letter-spacing:0.03em;
+  line-height:1.6;
+  color:rgba(255,255,255,0.6);
 }
 
-.choice:hover .label{
-  color:#f5f5f5;
-  letter-spacing:0.3em;
+/* Space below dot for balance */
+#below-dot{
+  height:80px;
+  margin-top:30px;
 }
 
-.choice .sub{
-  display:block;
-  margin-top:8px;
-  font-size:10px;
+/* Four realities — compass layout */
+#realities{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:20;
+  opacity:0;
+  transition:opacity 0.8s ease-out;
+}
+#realities.visible{opacity:1;pointer-events:auto}
+
+.reality{
+  position:absolute;
+  text-align:center;
+  opacity:0;
+  transform:scale(0.85);
+  transition:opacity 0.7s ease-out, transform 0.7s cubic-bezier(0.16,1,0.3,1);
+}
+.reality.visible{opacity:1;transform:scale(1)}
+
+.reality a{text-decoration:none;display:block;padding:16px 24px}
+.reality .label{
+  font-size:clamp(13px,3vw,17px);
   font-weight:300;
-  letter-spacing:0.3em;
+  letter-spacing:0.25em;
   text-transform:uppercase;
-  color:rgba(255,255,255,0.1);
-  transition:color 0.4s ease-out;
+  color:rgba(255,255,255,0.45);
+  transition:color 0.3s;
 }
-.choice:hover .sub{
-  color:rgba(201,162,39,0.5);
+.reality a:hover .label{color:#f5f5f5}
+.reality .sub{
+  display:block;
+  margin-top:6px;
+  font-size:9px;
+  letter-spacing:0.25em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,0.12);
+  transition:color 0.3s;
 }
+.reality a:hover .sub{color:rgba(201,162,39,0.5)}
 
-.divider{
-  width:30px;
-  height:1px;
-  background:rgba(255,255,255,0.06);
-  margin:0 auto;
-  opacity:0;
-  animation:fadeIn 1s ease-out 1.3s forwards;
-}
-.divider:last-of-type{
-  animation-delay:1.6s;
-}
+/* Compass positions */
+.r-top{top:18%;left:50%;transform:translateX(-50%) scale(0.85)}
+.r-top.visible{transform:translateX(-50%) scale(1)}
+.r-right{top:50%;right:8%;transform:translateY(-50%) scale(0.85)}
+.r-right.visible{transform:translateY(-50%) scale(1)}
+.r-bottom{bottom:18%;left:50%;transform:translateX(-50%) scale(0.85)}
+.r-bottom.visible{transform:translateX(-50%) scale(1)}
+.r-left{top:50%;left:8%;transform:translateY(-50%) scale(0.85)}
+.r-left.visible{transform:translateY(-50%) scale(1)}
 
-.dot{
-  width:4px;height:4px;
+/* Ring */
+#ring{
+  position:fixed;
+  top:50%;left:50%;
+  width:0;height:0;
+  border:1px solid rgba(201,162,39,0);
   border-radius:50%;
-  background:rgba(201,162,39,0.3);
-  display:none;
-  margin:30px auto 0;
-  opacity:0;
-  animation:fadeIn 1s ease-out 2s forwards;
+  transform:translate(-50%,-50%);
+  transition:width 1.5s cubic-bezier(0.16,1,0.3,1), height 1.5s cubic-bezier(0.16,1,0.3,1), border-color 1.5s ease-out;
+  pointer-events:none;
+  z-index:1;
+}
+#ring.visible{
+  width:min(65vw,65vh);
+  height:min(65vw,65vh);
+  border-color:rgba(201,162,39,0.08);
 }
 
-@keyframes fadeIn{
-  from{opacity:0}
-  to{opacity:1}
+/* Center label after reveal */
+#center-label{
+  position:fixed;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  font-size:8px;
+  font-weight:300;
+  letter-spacing:0.4em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,0);
+  transition:color 1s ease-out;
+  pointer-events:none;
+  z-index:5;
 }
-@keyframes fadeUp{
-  from{opacity:0;transform:translateY(20px)}
-  to{opacity:1;transform:translateY(0)}
-}
+#center-label.visible{color:rgba(255,255,255,0.08)}
 </style>
 </head>
 <body>
 
-<div class="title">Clay Machine Glow</div>
+<div id="ring"></div>
+<div id="center-label">Clay Machine Glow</div>
 
-<div class="choices">
-  <a href="physical.html" class="choice" style="--d:0.8s">
-    <span class="label">Physical Reality</span>
-    <span class="sub">Go outside</span>
-  </a>
-  <div class="divider"></div>
-  <a href="presence.html" class="choice" style="--d:1.1s">
-    <span class="label">Simulated Reality</span>
-    <span class="sub">It's not real</span>
-  </a>
-  <div class="divider"></div>
-  <a href="https://alangertner.github.io/claymachineglow/" class="choice" style="--d:1.4s">
-    <span class="label">Symbolic Reality</span>
-    <span class="sub">Nothing is real</span>
-  </a>
-  <div class="divider"></div>
-  <a href="https://alangertner.github.io/claymachineglow-ludic/" class="choice" style="--d:1.7s">
-    <span class="label">Ludic Reality</span>
-    <span class="sub">Play along</span>
-  </a>
+<div id="text-area">
+  <div class="text-content" id="t0"><span class="text-title">Clay Machine Glow</span></div>
+  <div class="text-content" id="t1"><span class="text-line">A project to get you<br>excited about reality</span></div>
+  <div class="text-content" id="t2"><span class="text-line">But reality these days<br>has many flavors</span></div>
 </div>
 
+<div id="dot"></div>
+
+<div id="below-dot"></div>
+
+<div id="realities">
+  <div class="reality r-top" id="r0"><a href="physical.html"><span class="label">Physical</span><span class="sub">Go outside</span></a></div>
+  <div class="reality r-right" id="r1"><a href="presence.html"><span class="label">Simulated</span><span class="sub">It's not real</span></a></div>
+  <div class="reality r-bottom" id="r2"><a href="https://alangertner.github.io/claymachineglow/"><span class="label">Symbolic</span><span class="sub">Nothing is real</span></a></div>
+  <div class="reality r-left" id="r3"><a href="https://alangertner.github.io/claymachineglow-ludic/"><span class="label">Ludic</span><span class="sub">Play along</span></a></div>
+</div>
+
+<script>
+let stage = 0;
+const dot = document.getElementById('dot');
+const ring = document.getElementById('ring');
+const centerLabel = document.getElementById('center-label');
+const realitiesEl = document.getElementById('realities');
+const texts = [
+  document.getElementById('t0'),
+  document.getElementById('t1'),
+  document.getElementById('t2'),
+];
+const realities = [
+  document.getElementById('r0'),
+  document.getElementById('r1'),
+  document.getElementById('r2'),
+  document.getElementById('r3'),
+];
+
+dot.addEventListener('click', () => {
+  stage++;
+
+  // Hide previous text
+  texts.forEach(t => t.classList.remove('visible'));
+
+  if (stage === 1) {
+    dot.className = 's1';
+    dot.id = 'dot';
+    setTimeout(() => texts[0].classList.add('visible'), 200);
+  }
+  else if (stage === 2) {
+    dot.className = 's2';
+    setTimeout(() => texts[1].classList.add('visible'), 300);
+  }
+  else if (stage === 3) {
+    dot.className = 's3';
+    setTimeout(() => texts[2].classList.add('visible'), 300);
+  }
+  else if (stage === 4) {
+    dot.className = 's4';
+    
+    // Hide text area
+    document.getElementById('text-area').style.opacity = '0';
+    document.getElementById('text-area').style.transition = 'opacity 0.6s';
+    document.getElementById('below-dot').style.opacity = '0';
+
+    // Show ring
+    setTimeout(() => ring.classList.add('visible'), 200);
+    
+    // Show center label
+    setTimeout(() => centerLabel.classList.add('visible'), 800);
+
+    // Show realities container
+    setTimeout(() => realitiesEl.classList.add('visible'), 400);
+
+    // Stagger each reality
+    realities.forEach((r, i) => {
+      setTimeout(() => r.classList.add('visible'), 600 + i * 250);
+    });
+  }
+});
+</script>
 </body>
 </html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;background:#000;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-direction:column;cursor:pointer;user-select:none}
+.word{font-size:clamp(32px,8vw,64px);font-weight:200;letter-spacing:0.25em;text-transform:uppercase;color:rgba(255,255,255,0.6);transition:opacity 0.8s}
+.sub{margin-top:16px;font-size:10px;letter-spacing:0.4em;text-transform:uppercase;color:rgba(201,162,39,0.3);transition:opacity 0.8s}
+.hint{position:fixed;bottom:30px;font-size:9px;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.1)}
+.watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:10px;letter-spacing:0.5em;text-transform:uppercase;color:rgba(255,255,255,0.04);pointer-events:none}
+</style></head><body>
+<div class="watermark">Clay Machine Glow</div>
+<div class="word" id="word">Physical</div>
+<div class="sub" id="sub">Go outside</div>
+<div class="hint">tap to cycle</div>
+<script>
+const worlds=[{w:'Physical',s:'Go outside'},{w:'Simulated',s:"It's not real"},{w:'Symbolic',s:'Nothing is real'},{w:'Ludic',s:'Play along'}];
+let i=0;
+document.body.addEventListener('click',()=>{
+  i=(i+1)%worlds.length;
+  const word=document.getElementById('word'),sub=document.getElementById('sub');
+  word.style.opacity='0';sub.style.opacity='0';
+  setTimeout(()=>{word.textContent=worlds[i].w;sub.textContent=worlds[i].s;word.style.opacity='1';sub.style.opacity='1'},400);
+});
+</script>
+</body></html>

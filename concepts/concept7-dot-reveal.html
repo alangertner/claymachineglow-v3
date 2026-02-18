@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clay Machine Glow</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{
+  width:100%;height:100%;
+  background:#000;
+  font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  color:#f5f5f5;
+  -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:default;
+}
+
+.stage{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  height:100%;
+}
+
+/* The dot */
+.dot{
+  width:12px;height:12px;
+  background:#c9a227;
+  border-radius:50%;
+  cursor:pointer;
+  position:relative;
+  z-index:10;
+  transition:width 0.8s cubic-bezier(0.16,1,0.3,1), height 0.8s cubic-bezier(0.16,1,0.3,1), box-shadow 1s ease-out;
+  box-shadow:0 0 20px rgba(201,162,39,0.3);
+  animation:pulse 2.5s ease-in-out infinite;
+}
+.dot.s1{width:20px;height:20px;box-shadow:0 0 40px rgba(201,162,39,0.4);animation:pulse2 2.5s ease-in-out infinite}
+.dot.s2{width:32px;height:32px;box-shadow:0 0 60px rgba(201,162,39,0.5);animation:pulse3 2.5s ease-in-out infinite}
+.dot.s3{width:48px;height:48px;box-shadow:0 0 80px rgba(201,162,39,0.5);animation:pulse4 2s ease-in-out infinite}
+.dot.s4{
+  width:300px;height:300px;
+  background:transparent;
+  box-shadow:none;
+  animation:none;
+  cursor:default;
+}
+
+@keyframes pulse{
+  0%,100%{transform:scale(1);box-shadow:0 0 20px rgba(201,162,39,0.3)}
+  50%{transform:scale(1.3);box-shadow:0 0 35px rgba(201,162,39,0.5)}
+}
+@keyframes pulse2{
+  0%,100%{transform:scale(1);box-shadow:0 0 40px rgba(201,162,39,0.4)}
+  50%{transform:scale(1.15);box-shadow:0 0 55px rgba(201,162,39,0.6)}
+}
+@keyframes pulse3{
+  0%,100%{transform:scale(1);box-shadow:0 0 60px rgba(201,162,39,0.5)}
+  50%{transform:scale(1.1);box-shadow:0 0 80px rgba(201,162,39,0.6)}
+}
+@keyframes pulse4{
+  0%,100%{transform:scale(1);box-shadow:0 0 80px rgba(201,162,39,0.5)}
+  50%{transform:scale(1.05);box-shadow:0 0 100px rgba(201,162,39,0.6)}
+}
+
+/* Text that appears */
+.text{
+  position:absolute;
+  text-align:center;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity 1s ease-out;
+  z-index:5;
+  max-width:500px;
+  padding:0 30px;
+}
+.text.visible{opacity:1}
+.text.fading{opacity:0;transition:opacity 0.6s ease-out}
+
+.text-line{
+  font-size:clamp(16px,3.5vw,22px);
+  font-weight:200;
+  letter-spacing:0.04em;
+  line-height:1.7;
+  color:rgba(255,255,255,0.65);
+}
+.text-title{
+  font-size:clamp(12px,2.5vw,16px);
+  font-weight:300;
+  letter-spacing:0.3em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,0.5);
+}
+
+/* Four realities */
+.realities{
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  z-index:20;
+}
+.reality{
+  position:absolute;
+  text-align:center;
+  opacity:0;
+  transform:translate(-50%,-50%) scale(0.8);
+  transition:opacity 0.8s ease-out, transform 0.8s cubic-bezier(0.16,1,0.3,1);
+  pointer-events:none;
+}
+.reality.visible{
+  opacity:1;
+  transform:translate(-50%,-50%) scale(1);
+  pointer-events:auto;
+}
+.reality a{
+  text-decoration:none;
+  display:block;
+}
+.reality .label{
+  font-size:clamp(13px,3vw,17px);
+  font-weight:300;
+  letter-spacing:0.25em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,0.45);
+  transition:color 0.3s;
+}
+.reality a:hover .label{color:#f5f5f5}
+.reality .sub{
+  margin-top:6px;
+  font-size:9px;
+  letter-spacing:0.25em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,0.12);
+  transition:color 0.3s;
+}
+.reality a:hover .sub{color:rgba(201,162,39,0.5)}
+
+.r0{top:22%;left:50%}
+.r1{top:50%;right:0;left:auto;transform:translate(0,-50%) scale(0.8);right:12%}
+.r1.visible{transform:translate(0,-50%) scale(1)}
+.r2{bottom:0;top:auto;top:78%;left:50%}
+.r3{top:50%;left:12%;transform:translate(0,-50%) scale(0.8)}
+.r3.visible{transform:translate(0,-50%) scale(1)}
+
+/* Ring that appears at stage 4 */
+.ring{
+  position:absolute;
+  top:50%;left:50%;
+  width:0;height:0;
+  border:1px solid rgba(201,162,39,0.08);
+  border-radius:50%;
+  transform:translate(-50%,-50%);
+  transition:width 1.2s cubic-bezier(0.16,1,0.3,1), height 1.2s cubic-bezier(0.16,1,0.3,1);
+  pointer-events:none;
+  z-index:2;
+}
+.ring.visible{
+  width:min(70vw,70vh);
+  height:min(70vw,70vh);
+}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="ring" id="ring"></div>
+  <div class="dot" id="dot"></div>
+  
+  <div class="text" id="t1"><span class="text-title">Clay Machine Glow</span></div>
+  <div class="text" id="t2"><span class="text-line">A project to get you<br>excited about reality</span></div>
+  <div class="text" id="t3"><span class="text-line">But reality these days<br>has many flavors</span></div>
+  
+  <div class="realities">
+    <div class="reality r0" id="r0"><a href="physical.html"><span class="label">Physical</span><span class="sub">Go outside</span></a></div>
+    <div class="reality r1" id="r1"><a href="presence.html"><span class="label">Simulated</span><span class="sub">It's not real</span></a></div>
+    <div class="reality r2" id="r2"><a href="https://alangertner.github.io/claymachineglow/"><span class="label">Symbolic</span><span class="sub">Nothing is real</span></a></div>
+    <div class="reality r3" id="r3"><a href="https://alangertner.github.io/claymachineglow-ludic/"><span class="label">Ludic</span><span class="sub">Play along</span></a></div>
+  </div>
+</div>
+
+<script>
+let stage = 0;
+const dot = document.getElementById('dot');
+const ring = document.getElementById('ring');
+const texts = [
+  document.getElementById('t1'),
+  document.getElementById('t2'),
+  document.getElementById('t3'),
+];
+const realities = [
+  document.getElementById('r0'),
+  document.getElementById('r1'),
+  document.getElementById('r2'),
+  document.getElementById('r3'),
+];
+
+dot.addEventListener('click', () => {
+  stage++;
+  
+  if (stage === 1) {
+    // Show "Clay Machine Glow"
+    dot.className = 'dot s1';
+    texts[0].classList.add('visible');
+  }
+  else if (stage === 2) {
+    // Fade first, show second
+    texts[0].classList.add('fading');
+    texts[0].classList.remove('visible');
+    dot.className = 'dot s2';
+    setTimeout(() => texts[1].classList.add('visible'), 500);
+  }
+  else if (stage === 3) {
+    // Fade second, show third
+    texts[1].classList.add('fading');
+    texts[1].classList.remove('visible');
+    dot.className = 'dot s3';
+    setTimeout(() => texts[2].classList.add('visible'), 500);
+  }
+  else if (stage === 4) {
+    // Expand dot into ring, reveal four realities
+    texts[2].classList.add('fading');
+    texts[2].classList.remove('visible');
+    dot.className = 'dot s4';
+    
+    setTimeout(() => {
+      ring.classList.add('visible');
+    }, 300);
+    
+    // Stagger reveal the four realities
+    realities.forEach((r, i) => {
+      setTimeout(() => r.classList.add('visible'), 600 + i * 200);
+    });
+  }
+});
+</script>
+</body>
+</html>
