@@ -137,9 +137,13 @@ body{
   height:clamp(120px,24vw,200px);
   transition:transform 0.3s ease-out;
 }
-.door:hover svg{transform:scale(1.04)}
-.door:hover .door-frame{stroke:rgba(255,255,255,0.35)}
-.door:hover .door-knob{fill:#c9a227;filter:drop-shadow(0 0 8px rgba(201,162,39,0.6))}
+@media (hover:hover){
+  .door:hover svg{transform:scale(1.04)}
+  .door:hover .door-frame{stroke:rgba(255,255,255,0.35)}
+  .door:hover .door-knob{fill:#c9a227;filter:drop-shadow(0 0 8px rgba(201,162,39,0.6))}
+  .door:hover .door-label{color:rgba(255,255,255,0.7)}
+  .door:hover .door-sub{color:rgba(201,162,39,0.4)}
+}
 
 .door-frame{
   stroke:rgba(255,255,255,0.15);
@@ -161,7 +165,6 @@ body{
   color:rgba(255,255,255,0.35);
   transition:color 0.3s;
 }
-.door:hover .door-label{color:rgba(255,255,255,0.7)}
 
 .door-sub{
   margin-top:5px;
@@ -171,7 +174,6 @@ body{
   color:rgba(255,255,255,0.08);
   transition:color 0.3s;
 }
-.door:hover .door-sub{color:rgba(201,162,39,0.4)}
 
 @media (hover:none){
   .door-label{color:rgba(255,255,255,0.5)}
