@@ -38,10 +38,10 @@ html,body{
   color:rgba(245,245,245,0.85);
 }
 .ticker{
-  font-size:clamp(16px,4vw,24px);
+  font-size:clamp(28px,7vw,48px);
   font-weight:300;
-  letter-spacing:0.4em;
-  color:rgba(201,162,39,0.35);
+  letter-spacing:0.2em;
+  color:rgba(201,162,39,0.45);
   font-variant-numeric:tabular-nums;
   opacity:0;
   animation:fadeUp 1s ease-out 1.5s forwards;
@@ -69,9 +69,8 @@ html,body{
 <a href="index.html" class="back">← back</a>
 <div class="container">
   <p class="message">
-    <em>Something is being fired in a kiln.</em><br><br>
-    When it emerges, you'll have to<br>
-    go outside to find it.
+    <em>Clay remembers the hands that shaped it.</em><br><br>
+    This one isn't ready yet.
   </p>
   <div class="ticker" id="ticker"></div>
 </div>
@@ -91,8 +90,9 @@ function update() {
   const hh = h % 24;
   const mm = m % 60;
   const ss = s % 60;
+  const ms = Math.floor((diff % 1000) / 10);
 
-  ticker.textContent = pad(d,3) + ' · ' + pad(hh,2) + ' · ' + pad(mm,2) + ' · ' + pad(ss,2);
+  ticker.textContent = pad(d,3) + '.' + pad(hh,2) + '.' + pad(mm,2) + '.' + pad(ss,2) + '.' + pad(ms,2);
 
   if (diff > 0) requestAnimationFrame(update);
   else ticker.textContent = '· · ·';
