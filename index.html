@@ -93,6 +93,19 @@ body{
   transition:opacity 0.6s ease-out;
 }
 
+#hint{
+  opacity:0;
+  font-size:11px;
+  font-weight:300;
+  letter-spacing:0.35em;
+  text-transform:lowercase;
+  color:rgba(201,162,39,0.4);
+  transition:opacity 1.2s ease-out;
+  pointer-events:none;
+  margin-top:20px;
+}
+#hint.visible{opacity:1}
+
 /* === DOORS === */
 #doors{
   position:fixed;
@@ -176,7 +189,9 @@ body{
 
 <div id="dot"></div>
 
-<div id="below-dot"></div>
+<div id="below-dot">
+  <div id="hint">begin</div>
+</div>
 
 <div id="doors">
   <a href="physical.html" class="door" id="d0">
@@ -223,6 +238,16 @@ body{
 
 <script>
 let stage = 0;
+let pulseCount = 0;
+const hint = document.getElementById('hint');
+
+// Count pulses via animation iteration, show hint after 5
+dot.addEventListener('animationiteration', () => {
+  if (stage === 0) {
+    pulseCount++;
+    if (pulseCount >= 5) hint.classList.add('visible');
+  }
+});
 const dot = document.getElementById('dot');
 const doorsEl = document.getElementById('doors');
 const texts = [
@@ -235,6 +260,8 @@ const doors = document.querySelectorAll('.door');
 dot.addEventListener('click', () => {
   stage++;
   texts.forEach(t => t.classList.remove('visible'));
+
+  hint.classList.remove('visible');
 
   if (stage === 1) {
     dot.className = 's1'; dot.id = 'dot';
