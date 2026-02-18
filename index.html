@@ -241,13 +241,10 @@ let stage = 0;
 let pulseCount = 0;
 const hint = document.getElementById('hint');
 
-// Count pulses via animation iteration, show hint after 5
-dot.addEventListener('animationiteration', () => {
-  if (stage === 0) {
-    pulseCount++;
-    if (pulseCount >= 3) hint.classList.add('visible');
-  }
-});
+// Show hint after 5 seconds
+setTimeout(() => {
+  if (stage === 0) hint.classList.add('visible');
+}, 5000);
 const dot = document.getElementById('dot');
 const doorsEl = document.getElementById('doors');
 const texts = [
