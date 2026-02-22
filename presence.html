@@ -446,6 +446,38 @@ html,body{
 #audio-toggle.visible{opacity:1}
 #audio-toggle.muted{color:rgba(255,255,255,0.2)}
 
+/* ===== MACHINE FLICKER HINT ===== */
+@keyframes machineFlicker{
+  0%,100%{opacity:0}
+  15%{opacity:0.7}
+  30%{opacity:0}
+  45%{opacity:0.85}
+  55%{opacity:0.6}
+  70%{opacity:0}
+  85%{opacity:0.75}
+}
+#machine-color.flickering{
+  animation:machineFlicker 2.5s ease-in-out infinite;
+}
+
+#scene-hint{
+  position:fixed;
+  bottom:120px;left:0;right:0;
+  z-index:350;
+  text-align:center;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 1.5s ease-out;
+}
+#scene-hint.visible{opacity:1}
+#scene-hint span{
+  font-size:clamp(10px,2.2vw,13px);
+  font-weight:300;
+  letter-spacing:0.35em;
+  text-transform:lowercase;
+  color:rgba(201,162,39,0.5);
+}
+
 /* ===== BREATH ANIMATION ===== */
 @keyframes breath{
   0%,100%{opacity:1}
@@ -490,6 +522,9 @@ html,body{
   <div class="location"></div>
   <div class="progress"></div>
 </div>
+
+<!-- Scene hint -->
+<div id="scene-hint"><span>click the machine to continue</span></div>
 
 <!-- Found overlay -->
 <div id="found-overlay"></div>
@@ -563,6 +598,8 @@ const preloadCache = {};
 let imgEl, machineColor, sceneWrapper, cursor, cursorDot, sceneNumber, sceneInfo, foundOverlay, attentionGlow, locationReveal;
 let machineRevealTimer = null;
 let machineRevealStart = 0;
+let flickerTimer = null;
+let hintTimer = null;
 
 // ===== AUDIO =====
 let audioCtx = null;
@@ -815,6 +852,30 @@ async function loadScene(idx) {
   }
   machineRevealTimer = requestAnimationFrame(animateMachineReveal);
   
+  // Clear any previous hint timers
+  if (flickerTimer) { clearTimeout(flickerTimer); flickerTimer = null; }
+  if (hintTimer) { clearTimeout(hintTimer); hintTimer = null; }
+  machineColor.classList.remove('flickering');
+  document.getElementById('scene-hint').classList.remove('visible');
+
+  // On first scene: after 5s flicker the machine color, after 15s show hint text
+  if (idx === 0) {
+    flickerTimer = setTimeout(() => {
+      if (gameActive && currentScene === 0 && !foundScenes.includes(0)) {
+        // Stop the gradual reveal and switch to flicker
+        if (machineRevealTimer) cancelAnimationFrame(machineRevealTimer);
+        machineColor.style.opacity = '1';
+        machineColor.classList.add('flickering');
+      }
+    }, 5000);
+
+    hintTimer = setTimeout(() => {
+      if (gameActive && currentScene === 0 && !foundScenes.includes(0)) {
+        document.getElementById('scene-hint').classList.add('visible');
+      }
+    }, 15000);
+  }
+
   // Show info
   sceneInfo.classList.add('visible');
   
@@ -883,7 +944,11 @@ function handleFound(sx, sy) {
   attentionGlow.classList.remove('active');
   // Hide color overlay since full image is now saturated
   if (machineRevealTimer) cancelAnimationFrame(machineRevealTimer);
+  if (flickerTimer) { clearTimeout(flickerTimer); flickerTimer = null; }
+  if (hintTimer) { clearTimeout(hintTimer); hintTimer = null; }
+  machineColor.classList.remove('flickering');
   machineColor.style.opacity = '0';
+  document.getElementById('scene-hint').classList.remove('visible');
   
   // Show location reveal
   locationReveal.querySelector('.name').textContent = SCENES[currentScene].name;
