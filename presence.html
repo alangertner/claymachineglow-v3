@@ -182,10 +182,7 @@ html,body{
   pointer-events:none;
   opacity:0;
   transition:opacity 0.3s ease-out;
-  mask-image:radial-gradient(circle 90px, rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0) 100%);
-  -webkit-mask-image:radial-gradient(circle 90px, rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0) 100%);
-  mask-size:100% 100%;
-  -webkit-mask-size:100% 100%;
+  /* mask-image set dynamically per scene in JS */
 }
 
 /* ===== ATTENTION GLOW (SVG filter approach) ===== */
@@ -812,22 +809,13 @@ async function loadScene(idx) {
   machineColor.style.height = imgHeight + 'px';
   machineColor.style.opacity = '0';
   
-  // Position mask on machine location
-  const mx = scene.x * 100;
-  const my = scene.y * 100;
-  machineColor.style.maskPosition = `${mx}% ${my}%`;
-  machineColor.style.webkitMaskPosition = `${mx}% ${my}%`;
-  // Use mask with fixed position relative to image
-  const maskSize = '180px 180px';
-  machineColor.style.maskSize = maskSize;
-  machineColor.style.webkitMaskSize = maskSize;
-  machineColor.style.maskRepeat = 'no-repeat';
-  machineColor.style.webkitMaskRepeat = 'no-repeat';
-  // Position mask at machine center
-  const maskX = (scene.x * imgWidth) - 90;
-  const maskY = (scene.y * imgHeight) - 90;
-  machineColor.style.maskPosition = `${maskX}px ${maskY}px`;
-  machineColor.style.webkitMaskPosition = `${maskX}px ${maskY}px`;
+  // Position mask on machine location — use percentage-based radial gradient
+  // so it scales correctly regardless of image resolution
+  const mxPct = scene.x * 100;
+  const myPct = scene.y * 100;
+  const maskGradient = `radial-gradient(circle 12% at ${mxPct}% ${myPct}%, rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0) 100%)`;
+  machineColor.style.maskImage = maskGradient;
+  machineColor.style.webkitMaskImage = maskGradient;
   
   // Start gradual color reveal - earlier scenes faster, later slower
   if (machineRevealTimer) cancelAnimationFrame(machineRevealTimer);
