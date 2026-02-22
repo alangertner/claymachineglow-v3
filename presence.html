@@ -445,16 +445,14 @@ html,body{
 
 /* ===== MACHINE FLICKER HINT ===== */
 @keyframes machineFlicker{
-  0%,100%{opacity:0}
-  15%{opacity:0.7}
-  30%{opacity:0}
-  45%{opacity:0.85}
-  55%{opacity:0.6}
-  70%{opacity:0}
-  85%{opacity:0.75}
+  0%{opacity:0}
+  30%{opacity:1}
+  50%{opacity:1}
+  80%{opacity:0}
+  100%{opacity:0}
 }
 #machine-color.flickering{
-  animation:machineFlicker 2.5s ease-in-out infinite;
+  animation:machineFlicker 3s ease-in-out infinite;
 }
 
 #scene-hint{
